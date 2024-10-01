@@ -1,43 +1,57 @@
-import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
-import { Box, Text, Bold } from '@metamask/snaps-sdk/jsx';
+import type { OnNameLookupHandler } from "@metamask/snaps-sdk"
 
-/**
- * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
- *
- * @param args - The request handler args as object.
- * @param args.origin - The origin of the request, e.g., the website that
- * invoked the snap.
- * @param args.request - A validated JSON-RPC request object.
- * @returns The result of `snap_dialog`.
- * @throws If the request method is not valid for this snap.
- */
-export const onRpcRequest: OnRpcRequestHandler = async ({
-  origin,
-  request,
-}) => {
-  switch (request.method) {
-    case 'hello':
-      return snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: (
-            <Box>
-              <Text>
-                Hello, <Bold>{origin}</Bold>!
-              </Text>
-              <Text>
-                This custom confirmation is just for display purposes.
-              </Text>
-              <Text>
-                But you can edit the snap source code to make it do something,
-                if you want to!
-              </Text>
-            </Box>
-          ),
-        },
-      });
-    default:
-      throw new Error('Method not found.');
+export const onNameLookup: OnNameLookupHandler = async (request) => {
+  const { chainId, address, domain } = request;
+
+  if (address) {
+    const shortAddress = address.substring(2, 5);
+    const chainIdDecimal = parseInt(chainId.split(':')[1], 10);
+    const resolvedDomain = `${shortAddress}.${chainIdDecimal}.test.domain`;
+    return { resolvedDomains: [{ resolvedDomain, protocol: 'test protocol' }] };
   }
+
+  if (domain) {
+
+    if(domain.startsWith('farcaster:') || domain.startsWith('fc:')) { 
+      const fcName = domain.split(':')[1]; 
+      if(!fcName) { return null; }
+
+      const options = {
+        method: 'GET',
+        headers: {accept: 'application/json', api_key: 'NEYNAR_API_DOCS'}
+      };
+
+      const response = await fetch(`https://api.neynar.com/v2/farcaster/user/search?q=${fcName}&limit=1`, options); 
+      const json = await response.json(); 
+
+      if(json.result && json.result.users && json.result.users.length) { 
+        const foundUser = json.result.users[0]; 
+        if(foundUser.username == fcName) { 
+          if(foundUser.verified_addresses && foundUser.verified_addresses.eth_addresses && 
+            foundUser.verified_addresses.eth_addresses.length) { 
+            const foundAddress = foundUser.verified_addresses.eth_addresses[0]; 
+            console.log(foundAddress); 
+            return { 
+              resolvedAddresses: [
+                { resolvedAddress: foundAddress, protocol: 'Farcaster', domainName: fcName },
+              ]
+            }
+          }
+        }
+      }
+
+    }
+    else { 
+
+      const resolvedAddress = '0xc0ffee254729296a45a3885639AC7E10F9d54979';
+      return {
+        resolvedAddresses: [
+          { resolvedAddress, protocol: 'test protocol', domainName: domain },
+        ],
+      };
+    
+    }
+  }
+
+  return null;
 };
