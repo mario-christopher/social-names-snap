@@ -22,7 +22,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
         method: 'GET',
         headers: {
           accept: 'application/json',
-          api_key: atob('QTQyQkM1OTUtRDI3OS00NkVELUI0RjAtQzAxN0ZEOTM0RjlB'),
+          api_key: atob('QTQyQkM1OTUtRDI3OS00NkVELUI0RjAtQzAxN0ZEOTM0RjlB'), // eslint-disable-line @typescript-eslint/naming-convention
         },
       };
 
