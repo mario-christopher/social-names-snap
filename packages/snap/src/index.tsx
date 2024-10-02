@@ -1,14 +1,15 @@
-import type { DomainResolution, OnNameLookupHandler } from '@metamask/snaps-sdk';
+import type {
+  DomainResolution,
+  OnNameLookupHandler,
+} from '@metamask/snaps-sdk';
 
 export const onNameLookup: OnNameLookupHandler = async (request) => {
-  const { chainId, address, domain } = request;
+  const { address, domain } = request;
 
   if (address) {
-    // make requests to both Neynar and Lens APIs for getting names 
+    const resolvedDomains: DomainResolution[] = [];
 
-    const resolvedDomains:Array<DomainResolution> = []; 
-
-    // get owned handles on Lens Protocol 
+    // get owned handles on Lens Protocol
     const optionsLens = {
       method: 'POST',
       headers: {
@@ -41,7 +42,9 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
       }),
     };
 
-    const fetchLens = fetch('https://api-v2.lens.dev/', optionsLens).then(response => response.json());
+    const fetchLens = fetch('https://api-v2.lens.dev/', optionsLens).then(
+      async (response) => response.json(),
+    );
 
     const optionsNeynar = {
       method: 'GET',
@@ -51,49 +54,45 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
       },
     };
 
-    const fetchNeynar = fetch(`https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`, optionsNeynar).then(response => response.json());
+    const fetchNeynar = fetch(
+      `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
+      optionsNeynar,
+    ).then(async (response) => response.json());
 
-    /*
-
-    const responseLens = await fetch('https://api-v2.lens.dev/', optionsLens);
-    const jsonLens = await responseLens.json();
-
-    */
-
-    try { 
+    try {
       const results = await Promise.allSettled([fetchLens, fetchNeynar]);
 
       // Process the results
-      const jsonLens = results[0].status === 'fulfilled' ? results[0].value : null;
-      const jsonNeynar = results[1].status === 'fulfilled' ? results[1].value : null;
+      const jsonLens =
+        results[0].status === 'fulfilled' ? results[0].value : null;
+      const jsonNeynar =
+        results[1].status === 'fulfilled' ? results[1].value : null;
 
       if (jsonLens.data?.ownedHandles?.items?.length) {
-        // we have at least one handle to return 
-        jsonLens.data.ownedHandles.items.forEach((item:any) => { 
+        // we have at least one handle to return
+        jsonLens.data.ownedHandles.items.forEach((item: any) => {
           resolvedDomains.push({
-            resolvedDomain: item.suggestedFormatted.localName, 
-            protocol: 'Lens Protocol'
-          }); 
-        }); 
+            resolvedDomain: item.suggestedFormatted.full,
+            protocol: 'Lens Protocol',
+          });
+        });
       }
 
-      if(jsonNeynar[address]) { 
-        jsonNeynar[address].forEach((item:any) => { 
+      if (jsonNeynar[address]) {
+        jsonNeynar[address].forEach((item: any) => {
           resolvedDomains.push({
-            resolvedDomain: item.username, 
-            protocol: 'Farcaster'
-          }); 
-        }); 
+            resolvedDomain: `FC: ${item.username}`, // eslint-disable-line @typescript-eslint/restrict-template-expressions
+            protocol: 'Farcaster',
+          });
+        });
       }
 
-      if(resolvedDomains.length) { 
-        return { resolvedDomains }; 
+      if (resolvedDomains.length) {
+        return { resolvedDomains };
       }
-
     } catch (error) {
       console.error('Unexpected error:', error);
     }
-
   }
 
   if (domain) {
@@ -122,7 +121,6 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
         if (foundUser.username === fcName) {
           if (foundUser.verified_addresses?.eth_addresses?.length) {
             const foundAddress = foundUser.verified_addresses.eth_addresses[0];
-            console.log(foundAddress);
             return {
               resolvedAddresses: [
                 {
