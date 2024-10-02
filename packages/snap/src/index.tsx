@@ -1,7 +1,9 @@
 import type {
   DomainResolution,
   OnNameLookupHandler,
+  OnInstallHandler
 } from '@metamask/snaps-sdk';
+import { Box, Heading, Text, Row, Italic } from "@metamask/snaps-sdk/jsx";
 
 export const onNameLookup: OnNameLookupHandler = async (request) => {
   const { address, domain } = request;
@@ -165,4 +167,27 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
   }
 
   return null;
+};
+
+export const onInstall: OnInstallHandler = async () => {
+  await snap.request({
+    method: "snap_dialog",
+    params: {
+      type: "alert",
+      content: (
+        <Box>
+          <Heading>Installation successful</Heading>
+          <Text>
+            Thank you for installing Social Names. Your MetaMask is now supercharged with support for Farcaster and Lens handles. From now on, when sending on any EVM network, you can type any of the following to resolve addresses from these protocols:.
+          </Text>
+          <Row label="Lens Protocol"><Text>username.lens</Text></Row>
+          <Row label="Farcaster"><Text>farcaster:username</Text></Row>
+          <Row label="Farcaster"><Text>fc:username</Text></Row>
+          <Text>
+            When there are valid matches, you will be shown suggested addresses. <Italic>Please always take a moment to double check names and suggested addresses.</Italic>
+          </Text>
+        </Box>
+      ),
+    },
+  });
 };
