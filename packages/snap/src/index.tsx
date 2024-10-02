@@ -1,14 +1,99 @@
-import type { OnNameLookupHandler } from '@metamask/snaps-sdk';
+import type { DomainResolution, OnNameLookupHandler } from '@metamask/snaps-sdk';
 
 export const onNameLookup: OnNameLookupHandler = async (request) => {
   const { chainId, address, domain } = request;
 
   if (address) {
-    // TO DO: implement reverse resolution!
-    const shortAddress = address.substring(2, 5);
-    const chainIdDecimal = parseInt(`${chainId}`.split(':')[1], 10);
-    const resolvedDomain = `${shortAddress}.${chainIdDecimal}.test.domain`;
-    return { resolvedDomains: [{ resolvedDomain, protocol: 'test protocol' }] };
+    // make requests to both Neynar and Lens APIs for getting names 
+
+    const resolvedDomains:Array<DomainResolution> = []; 
+
+    // get owned handles on Lens Protocol 
+    const optionsLens = {
+      method: 'POST',
+      headers: {
+        'User-Agent': 'spectaql',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `query {
+          ownedHandles(request: { for: "${address}" }) {
+            items {
+              fullHandle
+              ownedBy
+              linkedTo {
+                contract {
+                  address
+                  chainId
+                }
+              }
+              suggestedFormatted {
+                full
+                localName
+              }
+            }
+            pageInfo {
+              next
+              prev
+            }
+          }
+        }`,
+      }),
+    };
+
+    const fetchLens = fetch('https://api-v2.lens.dev/', optionsLens).then(response => response.json());
+
+    const optionsNeynar = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        api_key: atob('QTQyQkM1OTUtRDI3OS00NkVELUI0RjAtQzAxN0ZEOTM0RjlB'), // eslint-disable-line @typescript-eslint/naming-convention
+      },
+    };
+
+    const fetchNeynar = fetch(`https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`, optionsNeynar).then(response => response.json());
+
+    /*
+
+    const responseLens = await fetch('https://api-v2.lens.dev/', optionsLens);
+    const jsonLens = await responseLens.json();
+
+    */
+
+    try { 
+      const results = await Promise.allSettled([fetchLens, fetchNeynar]);
+
+      // Process the results
+      const jsonLens = results[0].status === 'fulfilled' ? results[0].value : null;
+      const jsonNeynar = results[1].status === 'fulfilled' ? results[1].value : null;
+
+      if (jsonLens.data?.ownedHandles?.items?.length) {
+        // we have at least one handle to return 
+        jsonLens.data.ownedHandles.items.forEach((item:any) => { 
+          resolvedDomains.push({
+            resolvedDomain: item.suggestedFormatted.localName, 
+            protocol: 'Lens Protocol'
+          }); 
+        }); 
+      }
+
+      if(jsonNeynar[address]) { 
+        jsonNeynar[address].forEach((item:any) => { 
+          resolvedDomains.push({
+            resolvedDomain: item.username, 
+            protocol: 'Farcaster'
+          }); 
+        }); 
+      }
+
+      if(resolvedDomains.length) { 
+        return { resolvedDomains }; 
+      }
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+
   }
 
   if (domain) {
