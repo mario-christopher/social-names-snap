@@ -18,7 +18,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
 
       const options = {
         method: 'GET',
-        headers: {accept: 'application/json', api_key: 'NEYNAR_API_DOCS'}
+        headers: {accept: 'application/json', api_key: atob('QTQyQkM1OTUtRDI3OS00NkVELUI0RjAtQzAxN0ZEOTM0RjlB')}
       };
 
       const response = await fetch(`https://api.neynar.com/v2/farcaster/user/search?q=${fcName}&limit=1`, options); 
