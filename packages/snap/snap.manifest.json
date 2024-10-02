@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Adds support for Farcaster and Lens handles in MetaMask.",
   "proposedName": "Social Names",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/Montoya/social-names-snap.git"
   },
   "source": {
-    "shasum": "nYa1o8+JbRIZnGA46fII5a4WWqg53W000MEc6xqglJ4=",
+    "shasum": "bRNYuuU7a9L9tidKrIH2KnKze78dsxhd42L8zht4JIA=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

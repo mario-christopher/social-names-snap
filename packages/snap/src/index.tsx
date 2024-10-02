@@ -43,7 +43,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
     };
 
     const fetchLens = fetch('https://api-v2.lens.dev/', optionsLens).then(
-      async (response) => response.json(),
+      async (response) => await response.json(),
     );
 
     const optionsNeynar = {
@@ -57,7 +57,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
     const fetchNeynar = fetch(
       `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
       optionsNeynar,
-    ).then(async (response) => response.json());
+    ).then(async (response) => await response.json());
 
     try {
       const results = await Promise.allSettled([fetchLens, fetchNeynar]);
