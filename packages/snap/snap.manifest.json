@@ -1,17 +1,18 @@
 {
   "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example",
+  "description": "Adds support for Farcaster and Lens handles in MetaMask.",
+  "proposedName": "Social Names",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+    "url": "https://github.com/Montoya/social-names-snap.git"
   },
   "source": {
-    "shasum": "TID5q3WRPuvhWItmhSK+EEDRD22OkycU+WTSa3kAVyo=",
+    "shasum": "iN771cNPUqmKU+hsWhWWisuvFY1wkuCIoruyBhmt/CY=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
-        "packageName": "snap",
+        "iconPath": "img/icon.svg",
+        "packageName": "social-names-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }

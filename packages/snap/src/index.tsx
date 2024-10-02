@@ -41,14 +41,32 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
       }
 
     }
-    else { 
+    else if(domain.endsWith('.lens')) { 
 
-      const resolvedAddress = '0xc0ffee254729296a45a3885639AC7E10F9d54979';
-      return {
-        resolvedAddresses: [
-          { resolvedAddress, protocol: 'test protocol', domainName: domain },
-        ],
-      };
+      const lensHandle = domain.replace('.lens','');
+
+      const options = { 
+        method: 'POST',
+        headers: { "User-Agent": "spectaql", "Content-Type": "application/json" }, 
+        body: JSON.stringify({ 
+          query: `query {
+            handleToAddress(request: { handle: "lens/${lensHandle}" })
+          }`
+        })
+      }; 
+
+      const response = await fetch(`https://api-v2.lens.dev/`, options); 
+      const json = await response.json(); 
+
+      if(json.data && json.data.handleToAddress) { 
+        // found a match 
+        const resolvedAddress = json.data.handleToAddress; 
+        return {
+          resolvedAddresses: [
+            { resolvedAddress, protocol: 'Lens', domainName: domain },
+          ],
+        };
+      }
     
     }
   }
