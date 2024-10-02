@@ -6,7 +6,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
   if (address) {
     // TO DO: implement reverse resolution!
     const shortAddress = address.substring(2, 5);
-    const chainIdDecimal = parseInt(`${chainId.split(':')[1]}`, 10);
+    const chainIdDecimal = parseInt(`${chainId}`.split(':')[1], 10);
     const resolvedDomain = `${shortAddress}.${chainIdDecimal}.test.domain`;
     return { resolvedDomains: [{ resolvedDomain, protocol: 'test protocol' }] };
   }
@@ -32,14 +32,10 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
       );
       const json = await response.json();
 
-      if (json.result && json.result.users && json.result.users.length) {
+      if (json.result?.users?.length) {
         const foundUser = json.result.users[0];
-        if (foundUser.username == fcName) {
-          if (
-            foundUser.verified_addresses &&
-            foundUser.verified_addresses.eth_addresses &&
-            foundUser.verified_addresses.eth_addresses.length
-          ) {
+        if (foundUser.username === fcName) {
+          if (foundUser.verified_addresses?.eth_addresses?.length) {
             const foundAddress = foundUser.verified_addresses.eth_addresses[0];
             console.log(foundAddress);
             return {
@@ -70,10 +66,10 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
         }),
       };
 
-      const response = await fetch(`https://api-v2.lens.dev/`, options);
+      const response = await fetch('https://api-v2.lens.dev/', options);
       const json = await response.json();
 
-      if (json.data && json.data.handleToAddress) {
+      if (json.data?.handleToAddress) {
         // found a match
         const resolvedAddress = json.data.handleToAddress;
         return {
