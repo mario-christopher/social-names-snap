@@ -4,8 +4,9 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
   const { chainId, address, domain } = request;
 
   if (address) {
+    // TO DO: implement reverse resolution! 
     const shortAddress = address.substring(2, 5);
-    const chainIdDecimal = parseInt(chainId.split(':')[1], 10);
+    const chainIdDecimal = parseInt(''+chainId.split(':')[1], 10);
     const resolvedDomain = `${shortAddress}.${chainIdDecimal}.test.domain`;
     return { resolvedDomains: [{ resolvedDomain, protocol: 'test protocol' }] };
   }
