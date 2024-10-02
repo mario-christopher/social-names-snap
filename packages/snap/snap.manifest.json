@@ -19,17 +19,10 @@
   },
   "initialPermissions": {
     "endowment:name-lookup": {
-      "chains": [
-        "eip155:1"
-      ],
+      "chains": ["eip155:1"],
       "matchers": {
-        "tlds": [
-          "lens"
-        ],
-        "schemes": [
-          "farcaster",
-          "fc"
-        ]
+        "tlds": ["lens"],
+        "schemes": ["farcaster", "fc"]
       }
     },
     "endowment:network-access": {}
