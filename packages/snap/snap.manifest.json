@@ -19,7 +19,6 @@
   },
   "initialPermissions": {
     "endowment:name-lookup": {
-      "chains": ["eip155:1"],
       "matchers": {
         "tlds": ["lens"],
         "schemes": ["farcaster", "fc"]
