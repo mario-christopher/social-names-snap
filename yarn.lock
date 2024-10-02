@@ -16943,9 +16943,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"snap@workspace:packages/snap":
+"social-names-snap@workspace:packages/snap":
   version: 0.0.0-use.local
-  resolution: "snap@workspace:packages/snap"
+  resolution: "social-names-snap@workspace:packages/snap"
   dependencies:
     "@jest/globals": ^29.5.0
     "@metamask/auto-changelog": ^3.4.4
