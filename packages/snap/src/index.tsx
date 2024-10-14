@@ -83,7 +83,7 @@ export const onNameLookup: OnNameLookupHandler = async (request) => {
       if (jsonNeynar[address]) {
         jsonNeynar[address].forEach((item: any) => {
           resolvedDomains.push({
-            resolvedDomain: `FC: ${item.username}`, // eslint-disable-line @typescript-eslint/restrict-template-expressions
+            resolvedDomain: `@${item.username} on Farcaster`, // eslint-disable-line @typescript-eslint/restrict-template-expressions
             protocol: 'Farcaster',
           });
         });
